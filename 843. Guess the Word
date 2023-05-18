@@ -1,0 +1,50 @@
+/**
+ * // This is the Master's API interface.
+ * // You should not implement it, or speculate about its implementation
+ * interface Master {
+ *     public int guess(String word) {}
+ * }
+ */
+class Solution {
+    public void findSecretWord(String[] words, Master master) {
+
+        List<String> possible = new ArrayList<>();
+        for(String word : words) possible.add(word);
+
+        Map<String, Integer> score = new HashMap<>();
+
+        for(int i = 0; i < words.length; i++) {
+            for(int j = i + 1; j < words.length; j++) {
+                int match = getMatchBtWords(words[i], words[j]);
+                score.put(words[i], score.getOrDefault(words[i], 0) + match);
+                score.put(words[j], score.getOrDefault(words[j], 0) + match);
+            }
+        }
+
+        boolean flag = true;
+
+        while(true) {
+            Collections.sort(possible, (a, b) -> score.get(b) - score.get(a));
+            String toCheck = "";
+            if(flag) toCheck = possible.get(0);
+            else toCheck = possible.get(possible.size() - 1);
+            int matchNumber = master.guess(toCheck);
+            if(matchNumber == 6) return;
+            //possible.remove(toCheck);
+            List<String> newPossible = new ArrayList<>();
+            for(int i = 0; i < possible.size() ; i++) {
+                if(getMatchBtWords(toCheck, possible.get(i)) == matchNumber) newPossible.add(possible.get(i));
+            }
+            possible = newPossible;
+            flag = !flag;
+        }
+    }
+
+    private int getMatchBtWords(String s1, String s2) {
+        int result = 0;
+        for(int i = 0; i < 6; i++) {
+            if(s1.charAt(i) == s2.charAt(i)) result++;
+        }
+        return result;
+    }
+}
